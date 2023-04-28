@@ -1,0 +1,70 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Logintitle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <!-- <meta content='1; url=http://127.0.0.1:5000/' http-equiv='refresh'> -->
+</head>
+
+<body>
+    <div class="background_image"></div>
+    <div class="refresh">
+        <div class="text">REFRESH</div>
+    </div>
+    <div id="text">
+    </div>
+    <div id="words">
+    </div>
+    </div>
+    <div class="refresh">
+        <div class="text">REFRESH</div>
+    </div>
+    <script>
+        const editables = document.querySelectorAll('#text, #words')
+        if (!editables[0].isContentEditable) {
+            editables[0].contentEditable = 'true';
+            editables[1].contentEditable = 'true';
+        };
+
+        document.querySelector(".refresh").onclick = function() {
+            var text = document.querySelector("#text").innerHTML;
+            var words = document.querySelector("#words").innerHTML;
+            console.log(text)
+            console.log(words)
+            $.ajax({
+                type: 'POST',
+                url: "/update",
+                data: JSON.stringify({
+                    "text": text,
+                    "words": words,
+                }),
+                contentType: 'application/json',
+                success: function(data){
+                    console.log(data);
+                    document.querySelector("#text").innerHTML = data['text'];
+                    document.querySelector("#words").innerHTML = data['words'];
+                    localStorage.text = data['text'];
+                    localStorage.words = data['words'];
+                }
+            });
+        };
+
+        window.onload = () => {
+            let text = document.querySelector('#text');
+            let words = document.querySelector('#words');
+            
+            if (localStorage.text) {
+                text.innerHTML = localStorage.text;
+            }
+            if (localStorage.words) {
+                words.innerHTML = localStorage.words;
+            }
+        }
+        
+    </script>
+</body>
+
+</html>
