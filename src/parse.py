@@ -1,6 +1,6 @@
 import pymorphy2
 import re
-import json
+import html2text
 
 morph = pymorphy2.MorphAnalyzer()
 
@@ -20,33 +20,58 @@ def normalize_text(text):
 
 
 def select(text, words_norm):
+    words_norm_set = set(words_norm)
     processed_text = ""
     cursor = 0
+    words = set()
+
+    text_words = set()
     for item in re.finditer('\w+', text):
         b, e = item.start(0), item.end(0)
-        if normalize_word(text[b:e]) in words_norm:
+        normalized = normalize_word(text[b:e])
+
+        text_words.add(normalized)
+
+        if normalized in words_norm_set:
+            words.add(normalized)
             processed_text += text[cursor:b] + '<b>' + text[b:e] + '</b>'
         else:
-            processed_text += text[cursor:b] + text[b:e]
+            processed_text += text[cursor:e]
         cursor = e
     processed_text += text[cursor:]
-    return processed_text
+    return processed_text, words, 100 * len(words) // len(text_words) if len(text_words) else 100
 
 def process(text, words):
-    text = re.sub('<b>|</b>',"", text)
-    words = re.sub('<b>|</b>',"", words)
+
+    text = re.sub(r"\<\/?b\>", r"", text)
+    words = re.sub(r"\<\/?b\>", r"", words)
+
+    text = html2text.html2text(text, bodywidth=1e18)
+    words = html2text.html2text(words, bodywidth=1e18)
+
+    text = re.sub(r"\*\*", r"", text)
+    words = re.sub(r"\*\*", r"", words)
+
+    text = re.sub(r"\\", r"", text)
+    words = re.sub(r"\\", r"", words)
+
+    text = re.sub(r"[^\S^\n]+", r" ", text)
+    words = re.sub(r"[^\S^\n]+", r" ", words)
 
     text_norm = normalize_text(text)
     words_norm = normalize_text(words)
 
-    return select(text, words_norm), select(words, text_norm)
+    if text_norm > words_norm:
+        processed_text, used_words, text_coverage = select(text, words_norm)
+        processed_words, _, words_coverage = select(words, used_words)
+    else:
+        processed_words, used_words, text_coverage = select(words, text_norm)
+        processed_text, _, words_coverage = select(text, used_words)
 
+    processed_text = re.sub(r"[^\S^\n]*(\n[^\S^\n]*)+", r"<br><br>", processed_text)
+    processed_words = re.sub(r"[^\S^\n]*(\n[^\S^\n]*)+", r"<br><br>", processed_words)
 
-if __name__ == '__main__':
-    text = 'У попа была собака, он её любил. Она съела кусок мяса - он её убил, в землю закопал и на камне написал: "У попа была собака ..."'
-    words = 'люблю куски дерева'
+    processed_text = re.sub(r"([^\S^\n]*\n[^\S^\n]*)", r"<br>", processed_text)
+    processed_words = re.sub(r"([^\S^\n]*\n[^\S^\n]*)", r"<br>", processed_words)
 
-    text, words = process(text, words)
-    print(text)
-    print()
-    print(words)
+    return processed_text, processed_words, text_coverage, words_coverage

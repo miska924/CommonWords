@@ -1,25 +1,5 @@
 body {
-    background-color:rgba(128, 128, 128, 0);
-}
-
-#background_image {
-    content: "";
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: -1;
-
-    display: block;
-    background-image: url('background.jpg');
-    background-size:cover;
-    width: 100%;
-    height: 100%;
-
-    -webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(5px);
+    background-color:rgb(128, 128, 128);
 }
 
 #text, #words {
@@ -27,7 +7,8 @@ body {
     float: left;
     width: 44%;
     height: 78%;
-    margin: 2%;
+    margin-left: 2%;
+    margin-right: 2%;
     padding: 1%;
 
     border-radius: 4px;
@@ -44,12 +25,12 @@ b {
 }
 
 .refresh {
-    border: 2px solid gray;
+    border: 2px solid white;
     border-radius: 4px;
     float: left;
     display: flex;
     background-color: gainsboro;
-    width: 96%;
+    width: calc(96% - 4px);
     height: 5%;
     margin-left: 2%;
     margin-right: 2%;
@@ -64,7 +45,31 @@ b {
     justify-content:center;
 }
 
+.percents {
+    border: 2px solid darkgrey;
+    border-radius: 4px;
+    float: left;
+    display: flex;
+    background-color: rgba(128, 128, 128, 0);
+    width: calc(calc(92% - 8px) / 2);
+    height: 5%;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 1%;
+
+    font-size: large;
+    position: relative;
+    vertical-align: middle;
+    text-align: center;
+    overflow:hidden;
+
+    align-items:center;
+    justify-content:center;
+}
+
 .text {
-    width: fit-content;
+    height: fit-content;
     font-size: xx-large;
+    
+    width: 100%;
 }
